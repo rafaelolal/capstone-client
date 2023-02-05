@@ -3,7 +3,7 @@ import Image from 'next/image' // TODO: Delete image import and file
 import { Inter } from '@next/font/google' // TODO: Delete?
 import styled from 'styled-components'
 import { Card, Input, Button } from 'antd'
-import { UserOutlined } from '@ant-design/icons'
+import { NumberOutlined } from '@ant-design/icons'
 
 const inter = Inter({ subsets: ['latin'] }) // TODO: Delete?
 
@@ -30,8 +30,8 @@ export default function Home() {
         <Card title='Join assignment' style={{ width: 400 }}>
           <Input.Group compact>
             <Input
-              style={{ width: 'calc(100% - 200px)' }}
-              prefix={<UserOutlined />}
+              style={{ width: 'calc(100% - 160px)' }}
+              prefix={<NumberOutlined />}
               placeholder='12345'
             />
             <Button type='primary'>Submit</Button>
