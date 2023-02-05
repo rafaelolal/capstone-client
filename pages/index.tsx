@@ -1,8 +1,19 @@
 import Head from 'next/head'
 import Image from 'next/image' // TODO: Delete image import and file
 import { Inter } from '@next/font/google' // TODO: Delete?
+import styled from 'styled-components'
+import { Card, Input, Button } from 'antd'
+import { UserOutlined } from '@ant-design/icons'
 
 const inter = Inter({ subsets: ['latin'] }) // TODO: Delete?
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+  background-color: #e3f2fd;
+`
 
 export default function Home() {
   return (
@@ -15,7 +26,18 @@ export default function Home() {
         {/* TODO: Change icon */}
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <div>HI</div>
+      <Container>
+        <Card title='Join assignment' style={{ width: 400 }}>
+          <Input.Group compact>
+            <Input
+              style={{ width: 'calc(100% - 200px)' }}
+              prefix={<UserOutlined />}
+              placeholder='12345'
+            />
+            <Button type='primary'>Submit</Button>
+          </Input.Group>
+        </Card>
+      </Container>
     </>
   )
 }
