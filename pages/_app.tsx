@@ -1,6 +1,7 @@
 import 'normalize.css'
 import type { AppProps } from 'next/app'
 import styled from 'styled-components'
+import { AppWrapper } from '@/context/state'
 
 const Container = styled.div`
   display: flex;
@@ -12,8 +13,10 @@ const Container = styled.div`
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Container>
-      <Component {...pageProps} />
-    </Container>
+    <AppWrapper>
+      <Container>
+        <Component {...pageProps} />
+      </Container>
+    </AppWrapper>
   )
 }
