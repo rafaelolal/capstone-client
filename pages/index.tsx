@@ -4,13 +4,7 @@ import styled from 'styled-components'
 import { Card, Input, Button } from 'antd'
 import { NumberOutlined } from '@ant-design/icons'
 
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  height: 100vh;
-  align-items: center;
-  background-color: #e3f2fd;
-`
+const Container = styled.div``
 
 export default function Home() {
   return (
@@ -23,18 +17,16 @@ export default function Home() {
         {/* TODO: Change icon */}
         <link rel='icon' href='/favicon.ico' />
       </Head>
-      <Container>
-        <Card title='Join assignment' style={{ width: 400 }}>
-          <Input.Group compact>
-            <Input
-              style={{ width: 'calc(100% - 160px)' }}
-              prefix={<NumberOutlined />}
-              placeholder='12345'
-            />
-            <Button type='primary'>Submit</Button>
-          </Input.Group>
-        </Card>
-      </Container>
+      <Card title='Join assignment' style={{ width: 400 }}>
+        <Input.Group compact>
+          <Input
+            style={{ width: 'calc(100% - 160px)' }}
+            prefix={<NumberOutlined />}
+            placeholder='12345'
+          />
+          <Button type='primary'>Submit</Button>
+        </Input.Group>
+      </Card>
     </>
   )
 }

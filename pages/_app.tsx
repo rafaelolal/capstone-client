@@ -1,6 +1,19 @@
 import 'normalize.css'
 import type { AppProps } from 'next/app'
+import styled from 'styled-components'
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  align-items: center;
+  background-color: #e3f2fd;
+`
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <Container>
+      <Component {...pageProps} />
+    </Container>
+  )
 }
