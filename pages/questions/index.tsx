@@ -17,8 +17,6 @@ type Question = {
 export default function QuestionsPage(props: { questions: Question[] }) {
   const { unitKey, unitAnswers } = useAppContext()
 
-  console.log({ unitAnswers })
-
   const dataSource: ColumnsType = props.questions.map((q) => ({
     key: q.pk,
     pk: q.pk,
