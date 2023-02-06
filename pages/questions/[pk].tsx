@@ -1,12 +1,17 @@
 import { GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/router'
 import axios from 'axios'
+import * as https from "https";
 import ReactMarkdown from 'react-markdown'
 import { Typography, Button, Form, Input } from 'antd'
 import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import LoginRequired from '@/components/login-required'
 import Link from 'next/link'
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 export default function QuestionsPage(props: {
   question: { title: string; description: string }
@@ -26,6 +31,7 @@ export default function QuestionsPage(props: {
         time_spent: Math.ceil(
           (new Date().getTime() - startDate.getTime()) / 1000
         ),
+        httpsAgent: httpsAgent,
       })
       .then((response) => {
         notify.success({
@@ -84,7 +90,7 @@ type MyContext = GetServerSidePropsContext & {
 export async function getServerSideProps(context: MyContext) {
   const { pk } = context.params
   const data = await axios
-    .get(`https://ralmeida.dev/capstone_server/question/${pk}?format=json`)
+    .get(`https://ralmeida.dev/capstone_server/question/${pk}?format=json`, {httpsAgent})
     .then((response) => response.data)
     .catch((error) => {
       console.log({ error })

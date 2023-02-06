@@ -1,10 +1,15 @@
 import React from 'react'
 import { Card, Table, Button } from 'antd'
+import * as https from "https";
 import axios from 'axios'
 import type { ColumnsType } from 'antd/es/table'
 import Link from 'next/link'
 import { useAppContext } from '@/context/state'
 import LoginRequired from '@/components/login-required'
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 type Question = {
   pk: number
@@ -82,7 +87,7 @@ export default function QuestionsPage(props: { questions: Question[] }) {
 
 export async function getServerSideProps() {
   const data = await axios
-    .get('https://ralmeida.dev/capstone_server/question-list/?format=json')
+    .get('https://ralmeida.dev/capstone_server/question-list/?format=json', { httpsAgent })
     .then((response) => response.data)
     .catch((error) => {
       console.log({ error })

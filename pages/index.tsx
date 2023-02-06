@@ -1,10 +1,15 @@
 import Head from 'next/head'
 import axios from 'axios'
+import * as https from "https"; 
 import { useEffect } from 'react'
 import { Card, Input, Button, Form } from 'antd'
 import { NumberOutlined } from '@ant-design/icons'
 import { useAppContext } from '@/context/state'
 import { useRouter } from 'next/router'
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 export default function Home() {
   const { unitKey, setUnitKey, setUnitAnswers, notify } = useAppContext()
@@ -19,7 +24,7 @@ export default function Home() {
 
   function onFinish(values: { key: string }) {
     axios
-      .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`)
+      .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`, { httpsAgent })
       .then((response) => {
         if (response.data) {
           setUnitKey(response.data.key)
