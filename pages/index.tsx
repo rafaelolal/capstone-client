@@ -15,7 +15,7 @@ export default function Home() {
     if (unitKey) {
       router.replace('/questions')
     }
-  }, [unitKey])
+  }, [unitKey, router])
 
   function onFinish(values: { key: string }) {
     axios
