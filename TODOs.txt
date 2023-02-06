@@ -1,0 +1,9 @@
+successfully submitted message
+access not allowed message
+make markdown look a bit better
+use input group in the signin page
+make the questions look a bit better
+better format the dates on the table
+when hovering over a start button that is not enabled,
+	have a tooltip describing why it is not enabled
+table dataSource type error

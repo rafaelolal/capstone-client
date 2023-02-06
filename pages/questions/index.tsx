@@ -19,8 +19,8 @@ export default function QuestionsPage(props: { questions: Question[] }) {
 
   console.log({ unitAnswers })
 
-  const dataSource: ColumnsType = props.questions.map((q, i) => ({
-    key: i,
+  const dataSource: ColumnsType = props.questions.map((q) => ({
+    key: q.pk,
     pk: q.pk,
     title: q.title,
     type: q.type,
@@ -53,7 +53,7 @@ export default function QuestionsPage(props: { questions: Question[] }) {
       // title: 'START',
       dataIndex: 'start',
       key: 'start',
-      render: (_, record: Question) => {
+      render: (_: any, record: Question) => {
         const today = new Date()
         if (
           !unitAnswers.map((a) => a.question).includes(record.pk) &&
