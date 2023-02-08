@@ -1,11 +1,16 @@
 import Head from 'next/head'
 import axios from 'axios'
+import * as https from 'https'
 import { useEffect } from 'react'
 import { Card, Input, Button, Form } from 'antd'
 import { NumberOutlined } from '@ant-design/icons'
 import { useAppContext } from '@/context/state'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+})
 
 const Container = styled.div`
   display: flex;
@@ -28,6 +33,7 @@ export default function Home() {
   function onFinish(values: { key: string }) {
     axios
       .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`, {
+        httpsAgent: httpsAgent,
         headers: {
           Authorization: `Token ${process.env.TOKEN}`,
         },

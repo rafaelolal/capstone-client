@@ -2,11 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import { GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/router'
 import axios from 'axios'
+import * as https from 'https'
 import ReactMarkdown from 'react-markdown'
 import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
 import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+})
 
 export default function QuestionsPage(props: {
   question: { title: string; description: string }
@@ -52,6 +57,7 @@ export default function QuestionsPage(props: {
             headers: {
               Authorization: `Token ${process.env.TOKEN}`,
             },
+            httpsAgent: httpsAgent,
           }
         )
         .then((response) => {
@@ -165,7 +171,10 @@ export async function getServerSideProps(context: MyContext) {
     .get(
       `https://ralmeida.dev/capstone_server/question/${pk}?format=json
       }`,
-      { headers: { Authorization: `Token ${process.env.TOKEN}` } }
+      {
+        httpsAgent: httpsAgent,
+        headers: { Authorization: `Token ${process.env.TOKEN}` },
+      }
     )
     .then((response) => response.data)
     .catch((error) => {

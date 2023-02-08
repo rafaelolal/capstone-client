@@ -1,10 +1,15 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router'
+import * as https from 'https'
 import axios from 'axios'
 import { Card, Table, Button, Modal, Space, Avatar, Row, Col } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useAppContext } from '@/context/state'
 import { UserOutlined } from '@ant-design/icons'
+
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false,
+})
 
 type Question = {
   pk: number
@@ -177,6 +182,7 @@ export async function getServerSideProps() {
         unitKey.substring(0, 2) == '22' ? '&control' : ''
       }`,
       {
+        httpsAgent: httpsAgent,
         headers: {
           Authorization: `Token ${process.env.TOKEN}`,
         },
