@@ -8,6 +8,7 @@ import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
 import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
+import LoginRequired from '@/components/login-required'
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -78,6 +79,10 @@ export default function QuestionsPage(props: {
     } catch (error) {
       console.error(error)
     }
+  }
+
+  if (!unitKey) {
+    return <LoginRequired />
   }
 
   return (
@@ -160,12 +165,6 @@ type MyContext = GetServerSidePropsContext & {
 
 // TODO: use getStaticProps
 export async function getServerSideProps(context: MyContext) {
-  const { unitKey } = useAppContext()
-
-  if (Boolean(unitKey)) {
-    return { redirect: { destination: '/signIn', permanent: true } }
-  }
-
   const { pk } = context.params
   const data = await axios
     .get(

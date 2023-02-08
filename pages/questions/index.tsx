@@ -2,10 +2,13 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import * as https from 'https'
 import axios from 'axios'
+import { ParsedUrlQuery } from 'querystring'
 import { Card, Table, Button, Modal, Space, Avatar, Row, Col } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useAppContext } from '@/context/state'
 import { UserOutlined } from '@ant-design/icons'
+import { GetServerSidePropsContext } from 'next'
+import LoginRequired from '@/components/login-required'
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -97,6 +100,10 @@ export default function QuestionsPage(props: { questions: Question[] }) {
     due_at: q.due_at,
   }))
 
+  if (!unitKey) {
+    return <LoginRequired />
+  }
+
   return (
     <>
       <Modal
@@ -168,18 +175,18 @@ export default function QuestionsPage(props: { questions: Question[] }) {
   )
 }
 
-// TODO: use getStaticProps
-export async function getServerSideProps() {
-  const { unitKey } = useAppContext()
+type MyContext = GetServerSidePropsContext & {
+  params: ParsedUrlQuery & { control: string | null }
+}
 
-  if (Boolean(unitKey)) {
-    return { redirect: { destination: '/signIn', permanent: true } }
-  }
+// TODO: use getStaticProps
+export async function getServerSideProps(context: MyContext) {
+  const isControl = 'control' in context.query
 
   const data = await axios
     .get(
       `https://ralmeida.dev/capstone_server/question-list/?format=json${
-        unitKey.substring(0, 2) == '22' ? '&control' : ''
+        isControl ? '&control' : ''
       }`,
       {
         httpsAgent: httpsAgent,
