@@ -9,8 +9,8 @@ import {
 import { notification } from 'antd'
 
 type ContextType = {
-  unitKey: string
-  setUnitKey: Dispatch<SetStateAction<string>>
+  unitKey: number | undefined
+  setUnitKey: Dispatch<SetStateAction<number | undefined>>
   unitAnswers: { question: number }[]
   setUnitAnswers: Dispatch<SetStateAction<{ question: number }[]>>
   notify: any // TODO: import NotificationInstance
@@ -20,7 +20,7 @@ let AppContext: Context<ContextType>
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [notify, contextHolder] = notification.useNotification()
-  const [unitKey, setUnitKey] = useState('')
+  const [unitKey, setUnitKey] = useState<number>()
   const [unitAnswers, setUnitAnswers] = useState<{ question: number }[]>([])
 
   const sharedState = {

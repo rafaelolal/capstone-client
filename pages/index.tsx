@@ -8,6 +8,8 @@ import { useAppContext } from '@/context/state'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
+const TOKEN = process.env.NEXT_PUBLIC_TOKEN
+
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 })
@@ -35,12 +37,12 @@ export default function Home() {
       .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`, {
         httpsAgent: httpsAgent,
         headers: {
-          Authorization: `Token ${process.env.TOKEN}`,
+          Authorization: `Token ${TOKEN}`,
         },
       })
       .then((response) => {
         if (response.data) {
-          setUnitKey(response.data.key)
+          setUnitKey(parseInt(response.data.key))
           setUnitAnswers(response.data.answers)
         }
       })

@@ -2,13 +2,13 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/router'
 import * as https from 'https'
 import axios from 'axios'
-import { ParsedUrlQuery } from 'querystring'
 import { Card, Table, Button, Modal, Space, Avatar, Row, Col } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useAppContext } from '@/context/state'
 import { UserOutlined } from '@ant-design/icons'
-import { GetServerSidePropsContext } from 'next'
 import LoginRequired from '@/components/login-required'
+
+const TOKEN = process.env.NEXT_PUBLIC_TOKEN
 
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
@@ -72,6 +72,10 @@ const getColumns = (
 export default function QuestionsPage(props: { questions: Question[] }) {
   const { unitKey, unitAnswers } = useAppContext()
 
+  if (!unitKey) {
+    return <LoginRequired />
+  }
+
   const router = useRouter()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -91,18 +95,16 @@ export default function QuestionsPage(props: { questions: Question[] }) {
     setIsModalOpen(false)
   }
 
-  const dataSource = props.questions.map((q) => ({
-    key: q.pk,
-    pk: q.pk,
-    title: q.title,
-    type: q.type,
-    open_at: q.open_at,
-    due_at: q.due_at,
-  }))
-
-  if (!unitKey) {
-    return <LoginRequired />
-  }
+  const dataSource = props.questions
+    .filter((q) => (unitKey >= 2200 && q.type != 'Normal') || unitKey < 2200)
+    .map((q) => ({
+      key: q.pk,
+      pk: q.pk,
+      title: q.title,
+      type: q.type,
+      open_at: q.open_at,
+      due_at: q.due_at,
+    }))
 
   return (
     <>
@@ -175,26 +177,15 @@ export default function QuestionsPage(props: { questions: Question[] }) {
   )
 }
 
-type MyContext = GetServerSidePropsContext & {
-  params: ParsedUrlQuery & { control: string | null }
-}
-
 // TODO: use getStaticProps
-export async function getServerSideProps(context: MyContext) {
-  const isControl = 'control' in context.query
-
+export async function getServerSideProps() {
   const data = await axios
-    .get(
-      `https://ralmeida.dev/capstone_server/question-list/?format=json${
-        isControl ? '&control' : ''
-      }`,
-      {
-        httpsAgent: httpsAgent,
-        headers: {
-          Authorization: `Token ${process.env.TOKEN}`,
-        },
-      }
-    )
+    .get('https://ralmeida.dev/capstone_server/question-list', {
+      httpsAgent: httpsAgent,
+      headers: {
+        Authorization: `Token ${TOKEN}`,
+      },
+    })
     .then((response) => response.data)
     .catch((error) => {
       console.log({ error })

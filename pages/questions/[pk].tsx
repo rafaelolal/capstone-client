@@ -10,6 +10,8 @@ import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import LoginRequired from '@/components/login-required'
 
+const TOKEN = process.env.NEXT_PUBLIC_TOKEN
+
 const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 })
@@ -56,7 +58,7 @@ export default function QuestionsPage(props: {
           },
           {
             headers: {
-              Authorization: `Token ${process.env.TOKEN}`,
+              Authorization: `Token ${TOKEN}`,
             },
             httpsAgent: httpsAgent,
           }
@@ -166,15 +168,14 @@ type MyContext = GetServerSidePropsContext & {
 // TODO: use getStaticProps
 export async function getServerSideProps(context: MyContext) {
   const { pk } = context.params
+
   const data = await axios
-    .get(
-      `https://ralmeida.dev/capstone_server/question/${pk}?format=json
-      }`,
-      {
-        httpsAgent: httpsAgent,
-        headers: { Authorization: `Token ${process.env.TOKEN}` },
-      }
-    )
+    .get(`https://ralmeida.dev/capstone_server/question/${pk}`, {
+      httpsAgent: httpsAgent,
+      headers: {
+        Authorization: `Token ${TOKEN}`,
+      },
+    })
     .then((response) => response.data)
     .catch((error) => {
       console.log({ error })
