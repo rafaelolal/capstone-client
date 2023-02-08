@@ -5,6 +5,14 @@ import { Card, Input, Button, Form } from 'antd'
 import { NumberOutlined } from '@ant-design/icons'
 import { useAppContext } from '@/context/state'
 import { useRouter } from 'next/router'
+import styled from 'styled-components'
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  height: calc(100vh - 180px);
+  align-items: center;
+`
 
 export default function Home() {
   const { unitKey, setUnitKey, setUnitAnswers, notify } = useAppContext()
@@ -19,7 +27,11 @@ export default function Home() {
 
   function onFinish(values: { key: string }) {
     axios
-      .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`)
+      .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`, {
+        headers: {
+          Authorization: `Token ${process.env.TOKEN}`,
+        },
+      })
       .then((response) => {
         if (response.data) {
           setUnitKey(response.data.key)
@@ -42,27 +54,28 @@ export default function Home() {
         <title>Capstone</title>
         {/* TODO: Change description */}
         <meta name='description' content='' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
         {/* TODO: Change icon */}
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <Card title='Sign In'>
-        <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
-          <Form.Item
-            name='key'
-            rules={[{ required: true, message: 'Please input your key!' }]}
-          >
-            <Input prefix={<NumberOutlined />} placeholder='1234' />
-          </Form.Item>
+      <Container>
+        <Card title='Sign In'>
+          <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
+            <Form.Item
+              name='key'
+              rules={[{ required: true, message: 'Please input your key!' }]}
+            >
+              <Input prefix={<NumberOutlined />} placeholder='1234' />
+            </Form.Item>
 
-          <Form.Item>
-            <Button type='primary' htmlType='submit'>
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+            <Form.Item>
+              <Button type='primary' htmlType='submit'>
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </Container>
     </>
   )
 }
