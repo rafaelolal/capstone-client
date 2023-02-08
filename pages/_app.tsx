@@ -1,14 +1,12 @@
 import 'normalize.css'
 import type { AppProps } from 'next/app'
-import styled from 'styled-components'
 import { AppWrapper } from '@/context/state'
+import styled from 'styled-components'
 
 const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  height: 100vh;
-  align-items: center;
-  background-color: #e3f2fd;
+  max-width: 750px;
+  margin: 48px auto;
+  padding: 32px;
 `
 
 export default function App({ Component, pageProps }: AppProps) {
