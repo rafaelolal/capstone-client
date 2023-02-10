@@ -1,14 +1,17 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import * as https from 'https'
 import ReactMarkdown from 'react-markdown'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
 import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import LoginRequired from '@/components/login-required'
+import { style } from 'react-syntax-highlighter/dist/cjs/styles/prism'
+import Link from 'next/link'
 
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN
 
@@ -17,13 +20,14 @@ const httpsAgent = new https.Agent({
 })
 
 export default function QuestionsPage(props: {
-  question: { title: string; description: string }
+  question: { title: string; description: string; type: string }
 }) {
   const { unitKey, notify, unitAnswers, setUnitAnswers } = useAppContext()
 
   const [form] = Form.useForm()
   const router = useRouter()
-  const startDate = useRef(new Date())
+  const startDate =
+    props.question.type == 'Test' ? useRef(new Date()) : undefined
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isOKEnabled, setIsOKEnabled] = useState(false)
@@ -43,54 +47,59 @@ export default function QuestionsPage(props: {
 
   async function onFinish() {
     try {
-      const values = await form.validateFields()
+      if (unitKey) {
+        const values = await form.validateFields()
 
-      axios
-        .post(
-          'https://ralmeida.dev/capstone_server/answer',
-          {
-            unit: unitKey,
-            question: router.query.pk,
-            content: values.content,
-            time_spent: Math.ceil(
-              (new Date().getTime() - startDate.current.getTime()) / 1000
-            ),
-          },
-          {
-            headers: {
-              Authorization: `Token ${TOKEN}`,
+        axios
+          .post(
+            'https://ralmeida.dev/capstone_server/answer/',
+            {
+              unit: unitKey,
+              question: router.query.pk,
+              content: values.content,
+              time_spent: startDate
+                ? Math.ceil(
+                    (new Date().getTime() - startDate.current.getTime()) / 1000
+                  )
+                : null,
             },
-            httpsAgent: httpsAgent,
-          }
-        )
-        .then((response) => {
-          router.replace('/questions/')
-          setIsModalOpen(false)
-          setUnitAnswers([
-            ...unitAnswers,
-            { question: parseInt(router.query.pk as string) },
-          ])
-          notify.success({
-            message: 'Answer submitted successfully',
-            placement: 'bottomRight',
+            {
+              headers: {
+                Authorization: `Token ${TOKEN}`,
+              },
+              httpsAgent: httpsAgent,
+            }
+          )
+          .then((response) => {
+            router.replace('/questions/')
+            setIsModalOpen(false)
+            setUnitAnswers([
+              ...unitAnswers,
+              { question: parseInt(router.query.pk as string) },
+            ])
+            notify.success({
+              message: 'Answer submitted successfully',
+              placement: 'bottomRight',
+            })
           })
-        })
-        .catch(function (error) {
-          console.log({ createAnswerAxiosError: error })
-        })
+          .catch(function (error) {
+            console.log({ createAnswerAxiosError: error })
+          })
+      } else {
+        router.replace('/questions/')
+      }
     } catch (error) {
       console.error(error)
     }
   }
 
-  if (!unitKey) {
+  if (unitKey === undefined) {
     return <LoginRequired />
   }
 
   return (
     <>
       <Typography.Title>{props.question.title}</Typography.Title>
-
       <ReactMarkdown
         className='markdown'
         components={{
@@ -102,13 +111,24 @@ export default function QuestionsPage(props: {
               {...props}
             />
           ),
-          h2: ({ node, ...props }) => <Typography.Title {...props} level={2} />,
           h3: ({ node, ...props }) => <Typography.Title {...props} level={3} />,
+          h4: ({ node, ...props }) => <Typography.Title {...props} level={4} />,
+          code: ({ node, className, ...props }) => {
+            const language = className!.replace('language-', '')
+
+            return (
+              <SyntaxHighlighter
+                {...props}
+                showLineNumbers
+                language={language}
+                style={style}
+              />
+            )
+          },
         }}
       >
         {props.question.description}
       </ReactMarkdown>
-
       <Form form={form}>
         <Form.Item
           name='content'
@@ -150,13 +170,18 @@ export default function QuestionsPage(props: {
           <p>Thank you for taking the time to complete this question.</p>
 
           <p>
-            Before continuing, make the below checkbox your digital signature
-            confirming that you tried your best and produced your own answer.
+            Before continuing, the checkbox is your digital signature confirming
+            you tried your best and produced your own answer.
           </p>
 
           <Checkbox onChange={onCheckboxChange}>I confirm</Checkbox>
         </Modal>
       </Form>
+      (unitKey === 0 &&
+      <Button type='primary' style={{ backgroundColor: '#ff1616' }}>
+        <Link href='/questions/'>Leave</Link>
+      </Button>
+      )
     </>
   )
 }
