@@ -26,8 +26,8 @@ export default function QuestionPage(props: {
 
   const router = useRouter()
   const [form] = Form.useForm()
-  const startDate =
-    props.question.type == 'Test' ? useRef(new Date()) : undefined
+  const startDate = useRef<Date>()
+  props.question.type == 'Test' ? (startDate.current = new Date()) : undefined
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isOKEnabled, setIsOKEnabled] = useState(false)
