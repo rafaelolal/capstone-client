@@ -10,7 +10,6 @@ import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import LoginRequired from '@/components/login-required'
-import { style } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import Link from 'next/link'
 
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN
@@ -57,7 +56,7 @@ export default function QuestionPage(props: {
               unit: unitKey,
               question: router.query.pk,
               content: values.content,
-              time_spent: startDate
+              time_spent: startDate.current
                 ? Math.ceil(
                     (new Date().getTime() - startDate.current.getTime()) / 1000
                   )
@@ -113,15 +112,14 @@ export default function QuestionPage(props: {
           ),
           h3: ({ node, ...props }) => <Typography.Title {...props} level={3} />,
           h4: ({ node, ...props }) => <Typography.Title {...props} level={4} />,
-          code: ({ node, className, ...props }) => {
-            const language = className!.replace('language-', '')
+          code: ({ children }) => {
+            console.log()
 
             return (
               <SyntaxHighlighter
-                {...props}
                 showLineNumbers
-                language={language}
-                style={style}
+                language={'py'}
+                children={children as string}
               />
             )
           },
@@ -177,11 +175,12 @@ export default function QuestionPage(props: {
           <Checkbox onChange={onCheckboxChange}>I confirm</Checkbox>
         </Modal>
       </Form>
-      (unitKey === 0 &&
-      <Button type='primary' style={{ backgroundColor: '#ff1616' }}>
-        <Link href='/questions/'>Leave</Link>
-      </Button>
-      )
+
+      {unitKey === 0 && (
+        <Button type='primary' style={{ backgroundColor: '#ff1616' }}>
+          <Link href='/questions/'>Leave</Link>
+        </Button>
+      )}
     </>
   )
 }
