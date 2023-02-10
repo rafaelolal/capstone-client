@@ -4,8 +4,8 @@ import { AppWrapper } from '@/context/state'
 import styled from 'styled-components'
 
 const Container = styled.div`
-  max-width: 750px;
-  margin: 48px auto;
+  max-width: 720px;
+  margin: auto;
   padding: 32px;
 `
 

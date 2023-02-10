@@ -14,12 +14,7 @@ export default function UnitProfile() {
             textAlign: 'center',
           }}
         >
-          <Avatar
-            shape='square'
-            size={64}
-            icon={<UserOutlined />}
-            style={{ marginBottom: 0 }}
-          />
+          <Avatar shape='square' size={64} icon={<UserOutlined />} />
 
           <p
             style={{
@@ -30,8 +25,8 @@ export default function UnitProfile() {
           >{`Unit ${unitKey}`}</p>
         </Col>
 
-        <Col flex='auto' style={{ marginRight: '16px' }}>
-          <p style={{ margin: '0px' }}>
+        <Col flex='auto'>
+          <p>
             No personal information is collected, so have fun learning. And,
             remember that honesty is of the utmost importance for the experiment
             to go well, so take your time and do not worry about mistakes.

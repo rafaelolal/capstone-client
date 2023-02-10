@@ -116,11 +116,9 @@ export default function QuestionPage(props: {
             console.log()
 
             return (
-              <SyntaxHighlighter
-                showLineNumbers
-                language={'py'}
-                children={children as string}
-              />
+              <SyntaxHighlighter showLineNumbers language={'py'}>
+                {children as string}
+              </SyntaxHighlighter>
             )
           },
         }}

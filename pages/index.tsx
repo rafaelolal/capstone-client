@@ -68,12 +68,8 @@ export default function Home() {
 
       <Container>
         <Card title='Sign In'>
-          <p style={{ margin: '0px' }}>
-            Participants, please use your unique key.
-          </p>
-          <p style={{ marginTop: '0px' }}>
-            But, you can also enter 0 to just explore.
-          </p>
+          <p>Participants must use unique key.</p>
+          <p>Visitors can enter 0 to just explore.</p>
           <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
             <Form.Item
               name='key'

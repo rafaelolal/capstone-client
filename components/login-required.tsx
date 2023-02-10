@@ -13,12 +13,10 @@ const Container = styled.div`
 export default function LoginRequired() {
   return (
     <Container>
-      <Typography.Title>
-        You must sign in before viewing questions
-      </Typography.Title>
+      <Typography.Title>Sign in before viewing questions</Typography.Title>
 
       <Button type='primary'>
-        <Link href='/'>Back</Link>
+        <Link href='/'>Sign In</Link>
       </Button>
     </Container>
   )
