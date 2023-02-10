@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import axios from 'axios'
-import * as https from 'https'
+import { Agent } from 'https'
 import { useEffect } from 'react'
 import { Card, Input, Button, Form } from 'antd'
 import { NumberOutlined } from '@ant-design/icons'
@@ -10,7 +10,7 @@ import styled from 'styled-components'
 
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN
 
-const httpsAgent = new https.Agent({
+const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 

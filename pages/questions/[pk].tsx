@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { GetServerSidePropsContext } from 'next'
 import { useRouter } from 'next/router'
 import axios from 'axios'
-import * as https from 'https'
+import { Agent } from 'https'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
@@ -15,7 +15,7 @@ import Link from 'next/link'
 
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN
 
-const httpsAgent = new https.Agent({
+const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 
