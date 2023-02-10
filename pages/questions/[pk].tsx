@@ -19,7 +19,7 @@ const httpsAgent = new https.Agent({
   rejectUnauthorized: false,
 })
 
-export default function QuestionsPage(props: {
+export default function QuestionPage(props: {
   question: { title: string; description: string; type: string }
 }) {
   const { unitKey, notify, unitAnswers, setUnitAnswers } = useAppContext()
