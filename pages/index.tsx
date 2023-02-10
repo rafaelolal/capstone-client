@@ -27,21 +27,21 @@ export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    if (unitKey) {
-      router.replace('/questions')
+    if (unitKey !== undefined) {
+      router.replace('/questions/')
     }
   }, [unitKey, router])
 
   function onFinish(values: { key: string }) {
     axios
-      .get(`https://ralmeida.dev/capstone_server/unit/${values.key}`, {
+      .get(`https://ralmeida.dev/capstone_server/unit/${values.key}/`, {
         httpsAgent: httpsAgent,
         headers: {
           Authorization: `Token ${TOKEN}`,
         },
       })
       .then((response) => {
-        if (response.data) {
+        if (response.data !== undefined) {
           setUnitKey(parseInt(response.data.key))
           setUnitAnswers(response.data.answers)
         }
@@ -68,6 +68,12 @@ export default function Home() {
 
       <Container>
         <Card title='Sign In'>
+          <p style={{ margin: '0px' }}>
+            Participants, please use your unique key.
+          </p>
+          <p style={{ marginTop: '0px' }}>
+            But, you can also enter "0" to just explore.
+          </p>
           <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
             <Form.Item
               name='key'

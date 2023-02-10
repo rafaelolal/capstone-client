@@ -1,16 +1,17 @@
+import { Agent } from 'https'
 import React, { useState } from 'react'
-import { useRouter } from 'next/router'
-import * as https from 'https'
 import axios from 'axios'
-import { Card, Table, Button, Modal, Space, Avatar, Row, Col } from 'antd'
+import { Card, Table, Button, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useAppContext } from '@/context/state'
-import { UserOutlined } from '@ant-design/icons'
 import LoginRequired from '@/components/login-required'
+import PeerReviewModal from '@/components/peer-review-modal'
+import ContinueModal from '@/components/continue-modal'
+import UnitProfile from '@/components/unit-profile'
 
 const TOKEN = process.env.NEXT_PUBLIC_TOKEN
 
-const httpsAgent = new https.Agent({
+const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 
@@ -18,24 +19,41 @@ type Question = {
   pk: number
   title: string
   type: string
-  open_at: string
-  due_at: string
+  opens_on: string
+  due_on: string
 }
 
 type unitAnswersType = { question: number }[]
 
-const unitHasAnswered = (unitAnswers: unitAnswersType, record: Question) =>
-  unitAnswers.map((a) => a.question).includes(record.pk)
+const isPretest = (record: Question) => record.title == 'Pretest'
+
+const hasAnsweredPreviousQuestion = (
+  unitAnswers: unitAnswersType,
+  record: Question
+) => unitAnswers.map((a) => a.question).includes(record.pk - 1)
+
+const hasAnsweredThisQuestion = (
+  unitAnswers: unitAnswersType,
+  record: Question
+) => unitAnswers.map((a) => a.question).includes(record.pk)
 
 const isQuestionWithinDateRange = (record: Question) =>
-  new Date() > new Date(record.open_at) && new Date() < new Date(record.due_at)
+  new Date() > new Date(record.opens_on) && new Date() < new Date(record.due_on)
 
-const isQuestionAccessible = (unitAnswers: unitAnswersType, record: Question) =>
-  !unitHasAnswered(unitAnswers, record) && isQuestionWithinDateRange(record)
+const isQuestionAccessible = (
+  unitAnswers: unitAnswersType,
+  record: Question,
+  unitKey: number
+) =>
+  ((isPretest(record) || hasAnsweredPreviousQuestion(unitAnswers, record)) &&
+    !hasAnsweredThisQuestion(unitAnswers, record) &&
+    isQuestionWithinDateRange(record)) ||
+  unitKey === 0
 
 const getColumns = (
   onStart: (record: Question) => void,
-  unitAnswers: unitAnswersType
+  unitAnswers: unitAnswersType,
+  unitKey: number
 ): ColumnsType<Question> => {
   return [
     {
@@ -44,14 +62,14 @@ const getColumns = (
       key: 'title',
     },
     {
-      title: 'OPENS',
-      dataIndex: 'open_at',
-      key: 'open_at',
+      title: 'OPENS ON',
+      dataIndex: 'opens_on',
+      key: 'opens_on',
     },
     {
-      title: 'DUE',
-      dataIndex: 'due_at',
-      key: 'due_at',
+      title: 'DUE ON',
+      dataIndex: 'due_on',
+      key: 'due_on',
     },
     {
       // title: 'START',
@@ -59,10 +77,10 @@ const getColumns = (
       key: 'start',
       render: (_: any, record: Question) => (
         <Button
-          disabled={!isQuestionAccessible(unitAnswers, record)}
+          disabled={!isQuestionAccessible(unitAnswers, record, unitKey)}
           onClick={() => onStart(record)}
         >
-          START
+          Start
         </Button>
       ),
     },
@@ -72,104 +90,56 @@ const getColumns = (
 export default function QuestionsPage(props: { questions: Question[] }) {
   const { unitKey, unitAnswers } = useAppContext()
 
-  if (!unitKey) {
+  const [isContinueModalOpen, setIsContinueModalOpen] = useState(false)
+  const [isPeerReviewModalOpen, setIsPeerReviewModalOpen] = useState(false)
+  const [selectedQuestion, setSelectedQuestion] = useState<number>()
+
+  if (unitKey === undefined) {
     return <LoginRequired />
   }
 
-  const router = useRouter()
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedQuestion, setSelectedQuestion] = useState<number>()
-
-  const showModal = (record: Question) => {
+  const showContinueModal = (record: Question) => {
     setSelectedQuestion(record.pk)
-    setIsModalOpen(true)
-  }
-
-  const handleOk = () => {
-    router.replace(`/questions/${selectedQuestion}`)
-    setIsModalOpen(false)
-  }
-
-  const handleCancel = () => {
-    setIsModalOpen(false)
+    setIsContinueModalOpen(true)
   }
 
   const dataSource = props.questions
     .filter((q) => (unitKey >= 2200 && q.type != 'Normal') || unitKey < 2200)
     .map((q) => ({
       key: q.pk,
-      pk: q.pk,
-      title: q.title,
-      type: q.type,
-      open_at: q.open_at,
-      due_at: q.due_at,
+      ...q,
     }))
 
   return (
     <>
-      <Modal
-        centered
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        closable={false}
-      >
-        <p>
-          Before continuing, please ensure that you are signed in with the
-          correct key and that you have around thirty uninterrupted minutes
-          before beginning.
-        </p>
-        <p>
-          Keep in mind that you are not evaluated based off accuracy or quality
-          and compared to any other student.
-        </p>
-        <p>
-          After starting, you are only allowed to return by submitting an
-          answer.
-        </p>
-      </Modal>
+      <ContinueModal
+        selectedQuestion={selectedQuestion as number}
+        isModalOpen={isContinueModalOpen}
+        setIsModalOpen={setIsContinueModalOpen}
+      />
+
+      <PeerReviewModal
+        isModalOpen={isPeerReviewModalOpen}
+        setIsModalOpen={setIsPeerReviewModalOpen}
+      />
 
       <Space direction='vertical' size={'large'}>
-        <Card size='small'>
-          <Row wrap={false} align='middle'>
-            <Col
-              flex='100px'
-              style={{
-                textAlign: 'center',
-              }}
-            >
-              <Avatar
-                shape='square'
-                size={64}
-                icon={<UserOutlined />}
-                style={{ marginBottom: 0 }}
-              />
-              <p
-                style={{
-                  fontWeight: 'bold',
-                  marginTop: '4px',
-                  marginBottom: '0px',
-                }}
-              >{`Unit ${unitKey}`}</p>
-            </Col>
+        <UnitProfile />
 
-            <Col flex='auto' style={{ marginRight: '16px' }}>
-              <p style={{ margin: '0px' }}>
-                No personal information is collected, so have fun learning. And,
-                remember that honesty is of the utmost importance for the
-                experiment to go well, so take your time and do not worry about
-                mistakes. Thanks for participating.
-              </p>
-            </Col>
-          </Row>
-        </Card>
+        <Button
+          type='default'
+          onClick={() => {
+            setIsPeerReviewModalOpen(true)
+          }}
+        >
+          Create Peer Review
+        </Button>
 
         <Card>
           <Table
             pagination={false}
             dataSource={dataSource}
-            columns={getColumns(showModal, unitAnswers)}
+            columns={getColumns(showContinueModal, unitAnswers, unitKey)}
           />
         </Card>
       </Space>
@@ -180,7 +150,7 @@ export default function QuestionsPage(props: { questions: Question[] }) {
 // TODO: use getStaticProps
 export async function getServerSideProps() {
   const data = await axios
-    .get('https://ralmeida.dev/capstone_server/question-list', {
+    .get('https://ralmeida.dev/capstone_server/question-list/', {
       httpsAgent: httpsAgent,
       headers: {
         Authorization: `Token ${TOKEN}`,
