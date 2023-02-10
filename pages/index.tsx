@@ -72,7 +72,7 @@ export default function Home() {
             Participants, please use your unique key.
           </p>
           <p style={{ marginTop: '0px' }}>
-            But, you can also enter "0" to just explore.
+            But, you can also enter 0 to just explore.
           </p>
           <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
             <Form.Item

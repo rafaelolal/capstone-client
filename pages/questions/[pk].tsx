@@ -24,8 +24,8 @@ export default function QuestionsPage(props: {
 }) {
   const { unitKey, notify, unitAnswers, setUnitAnswers } = useAppContext()
 
-  const [form] = Form.useForm()
   const router = useRouter()
+  const [form] = Form.useForm()
   const startDate =
     props.question.type == 'Test' ? useRef(new Date()) : undefined
 
