@@ -64,7 +64,7 @@ export default function SignedModal(props: {
       <p>
         If you are unsure, use your school email to sign the informed consent
         form{' '}
-        <a target='_blank' href='https://forms.gle/55HnH7p4UciAVqsg7'>
+        <a target='_blank' rel="noreferrer" href='https://forms.gle/55HnH7p4UciAVqsg7'>
           here
         </a>
         . You will receive a receipt of your response.

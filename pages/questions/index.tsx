@@ -91,7 +91,7 @@ export default function QuestionsPage(props: { questions: Question[] }) {
     if (unit.signed === null) {
       setIsSignedModalOpen(true)
     }
-  }, [])
+  }, [unit.signed])
 
   if (unit.key === undefined) {
     return <LoginRequired />
