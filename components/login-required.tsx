@@ -8,13 +8,13 @@ const Container = styled.div`
   justify-content: center;
   height: calc(100vh - 180px);
   align-items: center;
+  text-align: center;
 `
 
 export default function LoginRequired() {
   return (
     <Container>
       <Typography.Title>Sign in before viewing questions</Typography.Title>
-
       <Button type='primary'>
         <Link href='/'>Sign In</Link>
       </Button>
