@@ -1,5 +1,5 @@
 import { Agent } from 'https'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Card, Table, Button, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -8,8 +8,7 @@ import LoginRequired from '@/components/login-required'
 import PeerReviewModal from '@/components/peer-review-modal'
 import ContinueModal from '@/components/continue-modal'
 import UnitProfile from '@/components/unit-profile'
-
-const TOKEN = process.env.NEXT_PUBLIC_TOKEN
+import SignedModal from '@/components/signed-modal'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -21,39 +20,32 @@ type Question = {
   type: string
   opens_on: string
   due_on: string
+  pre_requisite: number
 }
 
-type unitAnswersType = { question: number }[]
+const meetsPreRequisite = (unitAnswers: number[], record: Question) =>
+  !record.pre_requisite || unitAnswers.includes(record.pre_requisite)
 
-const isPretest = (record: Question) => record.title == 'Pretest'
-
-const hasAnsweredPreviousQuestion = (
-  unitAnswers: unitAnswersType,
-  record: Question
-) => unitAnswers.map((a) => a.question).includes(record.pk - 1)
-
-const hasAnsweredThisQuestion = (
-  unitAnswers: unitAnswersType,
-  record: Question
-) => unitAnswers.map((a) => a.question).includes(record.pk)
+const hasAnsweredThisQuestion = (unitAnswers: number[], record: Question) =>
+  unitAnswers.includes(record.pk)
 
 const isQuestionWithinDateRange = (record: Question) =>
   new Date() > new Date(record.opens_on) && new Date() < new Date(record.due_on)
 
 const isQuestionAccessible = (
-  unitAnswers: unitAnswersType,
-  record: Question,
-  unitKey: number
+  unitType: string,
+  unitAnswers: number[],
+  record: Question
 ) =>
-  ((isPretest(record) || hasAnsweredPreviousQuestion(unitAnswers, record)) &&
+  (meetsPreRequisite(unitAnswers, record) &&
     !hasAnsweredThisQuestion(unitAnswers, record) &&
     isQuestionWithinDateRange(record)) ||
-  unitKey === 0
+  unitType == 'Test'
 
 const getColumns = (
   onStart: (record: Question) => void,
-  unitAnswers: unitAnswersType,
-  unitKey: number
+  unitType: string,
+  unitAnswers: number[]
 ): ColumnsType<Question> => {
   return [
     {
@@ -77,7 +69,7 @@ const getColumns = (
       key: 'start',
       render: (_: any, record: Question) => (
         <Button
-          disabled={!isQuestionAccessible(unitAnswers, record, unitKey)}
+          disabled={!isQuestionAccessible(unitType, unitAnswers, record)}
           onClick={() => onStart(record)}
         >
           Start
@@ -88,13 +80,20 @@ const getColumns = (
 }
 
 export default function QuestionsPage(props: { questions: Question[] }) {
-  const { unitKey, unitAnswers } = useAppContext()
+  const { unit } = useAppContext()
 
+  const [isSignedModalOpen, setIsSignedModalOpen] = useState(false)
   const [isContinueModalOpen, setIsContinueModalOpen] = useState(false)
   const [isPeerReviewModalOpen, setIsPeerReviewModalOpen] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<number>()
 
-  if (unitKey === undefined) {
+  useEffect(() => {
+    if (unit.signed === null) {
+      setIsSignedModalOpen(true)
+    }
+  }, [])
+
+  if (unit.key === undefined) {
     return <LoginRequired />
   }
 
@@ -104,7 +103,11 @@ export default function QuestionsPage(props: { questions: Question[] }) {
   }
 
   const dataSource = props.questions
-    .filter((q) => (unitKey >= 2200 && q.type != 'Normal') || unitKey < 2200)
+    .filter(
+      (q) =>
+        (unit.type == 'Control' && q.type == 'Test') ||
+        ['Experimental', 'Test'].includes(unit.type!)
+    )
     .map((q) => ({
       key: q.pk,
       ...q,
@@ -112,8 +115,13 @@ export default function QuestionsPage(props: { questions: Question[] }) {
 
   return (
     <>
+      <SignedModal
+        isModalOpen={isSignedModalOpen}
+        setIsModalOpen={setIsSignedModalOpen}
+      />
+
       <ContinueModal
-        selectedQuestion={selectedQuestion as number}
+        selectedQuestion={selectedQuestion!}
         isModalOpen={isContinueModalOpen}
         setIsModalOpen={setIsContinueModalOpen}
       />
@@ -139,7 +147,7 @@ export default function QuestionsPage(props: { questions: Question[] }) {
           <Table
             pagination={false}
             dataSource={dataSource}
-            columns={getColumns(showContinueModal, unitAnswers, unitKey)}
+            columns={getColumns(showContinueModal, unit.type!, unit.answers!)}
           />
         </Card>
       </Space>
@@ -152,9 +160,6 @@ export async function getServerSideProps() {
   const data = await axios
     .get('https://ralmeida.dev/capstone_server/question-list/', {
       httpsAgent: httpsAgent,
-      headers: {
-        Authorization: `Token ${TOKEN}`,
-      },
     })
     .then((response) => response.data)
     .catch((error) => {

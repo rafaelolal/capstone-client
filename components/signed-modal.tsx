@@ -1,17 +1,17 @@
 import { Agent } from 'https'
 import axios from 'axios'
 import { useAppContext } from '@/context/state'
-import { Button, DatePicker, Form, Input, Modal } from 'antd'
+import { Button, Form, Modal, Radio, Space } from 'antd'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 
-export default function PeerReviewModal(props: {
+export default function SignedModal(props: {
   isModalOpen: boolean
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
-  const { unit, notify } = useAppContext()
+  const { unit, setUnit, notify } = useAppContext()
 
   const [form] = Form.useForm()
 
@@ -20,28 +20,25 @@ export default function PeerReviewModal(props: {
       const values = await form.validateFields()
 
       axios
-        .post(
-          'https://ralmeida.dev/capstone_server/peer-review/',
+        .patch(
+          `https://ralmeida.dev/capstone_server/unit-signed/${unit.key}/`,
           {
-            unit: unit.key,
-            ...values,
-            submitted_on: new Date(values.submitted_on.$d)
-              .toISOString()
-              .split('T')[0],
+            signed: values.signed,
           },
           {
             httpsAgent: httpsAgent,
           }
         )
         .then((response) => {
+          setUnit({ ...unit, signed: values.signed })
           props.setIsModalOpen(false)
           notify.success({
-            message: 'Peer review submitted successfully',
+            message: 'Decision set successfully',
             placement: 'bottomRight',
           })
         })
         .catch(function (error) {
-          console.log({ createPeerReviewAxiosError: error })
+          console.log({ unitSignedAxiosError: error })
         })
     } catch (error) {
       console.error(error)
@@ -52,52 +49,43 @@ export default function PeerReviewModal(props: {
     <Modal
       centered
       closable={false}
+      maskClosable={false}
       open={props.isModalOpen}
       onCancel={() => {
         props.setIsModalOpen(false)
       }}
       footer={[
-        <Button
-          key='back'
-          onClick={() => {
-            props.setIsModalOpen(false)
-          }}
-        >
-          Cancel
-        </Button>,
         <Button key='submit' type='primary' onClick={onPeerReviewSubmit}>
           Submit
         </Button>,
       ]}
     >
+      <p>Before continuing, confirm that you agreed to be in the study.</p>
       <p>
-        After every peer-review assignment, paste the code YOU reviewed here
-        with date the review happened.
+        If you are unsure, use your school email to sign the informed consent
+        form{' '}
+        <a target='_blank' href='https://forms.gle/55HnH7p4UciAVqsg7'>
+          here
+        </a>
+        . You will receive a receipt of your response.
       </p>
 
       <Form form={form}>
         <Form.Item
-          name='content'
+          name='signed'
           rules={[
             {
               required: true,
-              message: 'Please input the code YOU reviewed!',
+              message: 'Please select an option!',
             },
           ]}
         >
-          <Input.TextArea placeholder='Code YOU reviewed' />
-        </Form.Item>
-
-        <Form.Item
-          name='submitted_on'
-          rules={[
-            {
-              required: true,
-              message: 'Please input the date the review happened!',
-            },
-          ]}
-        >
-          <DatePicker />
+          <Radio.Group>
+            <Space direction='vertical'>
+              <Radio value={true}>I agreed</Radio>
+              <Radio value={false}>I DID NOT agree</Radio>
+            </Space>
+          </Radio.Group>
         </Form.Item>
       </Form>
     </Modal>

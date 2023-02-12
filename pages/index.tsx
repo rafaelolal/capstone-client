@@ -8,8 +8,6 @@ import { useAppContext } from '@/context/state'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
-const TOKEN = process.env.NEXT_PUBLIC_TOKEN
-
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
@@ -21,29 +19,32 @@ const Container = styled.div`
   align-items: center;
 `
 
-export default function Home() {
-  const { unitKey, setUnitKey, setUnitAnswers, notify } = useAppContext()
+export default function IndexPage() {
+  const { unit, setUnit, notify } = useAppContext()
 
   const router = useRouter()
 
   useEffect(() => {
-    if (unitKey !== undefined) {
+    if (unit.key !== undefined) {
       router.replace('/questions/')
     }
-  }, [unitKey, router])
+  }, [unit.key, router])
 
   function onFinish(values: { key: string }) {
     axios
       .get(`https://ralmeida.dev/capstone_server/unit/${values.key}/`, {
         httpsAgent: httpsAgent,
-        headers: {
-          Authorization: `Token ${TOKEN}`,
-        },
       })
       .then((response) => {
         if (response.data !== undefined) {
-          setUnitKey(parseInt(response.data.key))
-          setUnitAnswers(response.data.answers)
+          setUnit({
+            key: parseInt(response.data.key),
+            type: response.data.type,
+            answers: response.data.answers.map(
+              (a: { question: number }) => a.question
+            ),
+            signed: response.data.signed,
+          })
         }
       })
       .catch((error) => {
@@ -69,7 +70,7 @@ export default function Home() {
       <Container>
         <Card title='Sign In'>
           <p>Participants must use unique key.</p>
-          <p>Visitors can enter 0 to just explore.</p>
+          <p>Visitors can enter 9999 to just explore.</p>
           <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
             <Form.Item
               name='key'

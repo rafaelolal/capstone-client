@@ -3,7 +3,7 @@ import { UserOutlined } from '@ant-design/icons'
 import { useAppContext } from '@/context/state'
 
 export default function UnitProfile() {
-  const { unitKey } = useAppContext()
+  const { unit } = useAppContext()
 
   return (
     <Card size='small'>
@@ -22,7 +22,7 @@ export default function UnitProfile() {
               marginTop: '4px',
               marginBottom: '0px',
             }}
-          >{`Unit ${unitKey}`}</p>
+          >{`Unit ${unit.key}`}</p>
         </Col>
 
         <Col flex='auto'>
@@ -33,12 +33,11 @@ export default function UnitProfile() {
             Thanks for participating.
           </p>
 
-          {unitKey == 0 && (
+          {unit.type == 'Test' && (
             <p>
-              As unit 0, you will see exactly what participants see. However,
-              questions will be open despite of the date, you will have more
-              navigation options (like leaving a question), and your responses
-              are not recorded.
+              As a test unit, you will see exactly what participants see.
+              However, questions will be open despite of the date, and you will
+              have more navigation options (like leaving a question).
             </p>
           )}
         </Col>

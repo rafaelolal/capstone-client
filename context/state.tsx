@@ -8,11 +8,16 @@ import {
 } from 'react'
 import { notification } from 'antd'
 
+type Unit = {
+  key: number | undefined
+  type: string | undefined
+  answers: number[] | undefined
+  signed: boolean | null | undefined
+}
+
 type ContextType = {
-  unitKey: number | undefined
-  setUnitKey: Dispatch<SetStateAction<number | undefined>>
-  unitAnswers: { question: number }[]
-  setUnitAnswers: Dispatch<SetStateAction<{ question: number }[]>>
+  unit: Unit
+  setUnit: Dispatch<SetStateAction<Unit>>
   notify: any // TODO: import NotificationInstance
 }
 
@@ -20,14 +25,16 @@ let AppContext: Context<ContextType>
 
 export function AppWrapper({ children }: { children: React.ReactNode }) {
   const [notify, contextHolder] = notification.useNotification()
-  const [unitKey, setUnitKey] = useState<number>()
-  const [unitAnswers, setUnitAnswers] = useState<{ question: number }[]>([])
+  const [unit, setUnit] = useState<Unit>({
+    key: undefined,
+    type: undefined,
+    answers: undefined,
+    signed: undefined,
+  })
 
   const sharedState = {
-    unitKey,
-    setUnitKey,
-    unitAnswers,
-    setUnitAnswers,
+    unit,
+    setUnit,
     notify,
   }
 

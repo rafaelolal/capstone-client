@@ -1,27 +1,29 @@
-import { useRouter } from 'next/router'
-import { Modal } from 'antd'
+import { Button, Modal } from 'antd'
+import Link from 'next/link'
 
 export default function ContinueModal(props: {
   selectedQuestion: number
   isModalOpen: boolean
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
-  const router = useRouter()
-
-  const handleContinueOk = () => {
-    router.replace(`/questions/${props.selectedQuestion}/`)
-    props.setIsModalOpen(false)
-  }
-
   return (
     <Modal
       centered
       open={props.isModalOpen}
-      onOk={handleContinueOk}
-      onCancel={() => {
-        props.setIsModalOpen(false)
-      }}
       closable={false}
+      footer={[
+        <Button
+          key='back'
+          onClick={() => {
+            props.setIsModalOpen(false)
+          }}
+        >
+          Cancel
+        </Button>,
+        <Button key='submit' type='primary'>
+          <Link href={`/questions/${props.selectedQuestion}/`}>OK</Link>
+        </Button>,
+      ]}
     >
       <p>
         Before continuing, please ensure that you are signed in with the correct

@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react'
 import { GetServerSidePropsContext } from 'next'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import { Agent } from 'https'
+import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
@@ -10,18 +12,21 @@ import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
 import LoginRequired from '@/components/login-required'
-import Link from 'next/link'
-
-const TOKEN = process.env.NEXT_PUBLIC_TOKEN
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 
+const ActionButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+`
+
 export default function QuestionPage(props: {
   question: { title: string; description: string; type: string }
 }) {
-  const { unitKey, notify, unitAnswers, setUnitAnswers } = useAppContext()
+  const { unit, setUnit, notify } = useAppContext()
 
   const router = useRouter()
   const [form] = Form.useForm()
@@ -46,53 +51,47 @@ export default function QuestionPage(props: {
 
   async function onFinish() {
     try {
-      if (unitKey) {
-        const values = await form.validateFields()
+      const values = await form.validateFields()
 
-        axios
-          .post(
-            'https://ralmeida.dev/capstone_server/answer/',
-            {
-              unit: unitKey,
-              question: router.query.pk,
-              content: values.content,
-              time_spent: startDate.current
-                ? Math.ceil(
-                    (new Date().getTime() - startDate.current.getTime()) / 1000
-                  )
-                : null,
-            },
-            {
-              headers: {
-                Authorization: `Token ${TOKEN}`,
-              },
-              httpsAgent: httpsAgent,
-            }
-          )
-          .then((response) => {
-            router.replace('/questions/')
-            setIsModalOpen(false)
-            setUnitAnswers([
-              ...unitAnswers,
-              { question: parseInt(router.query.pk as string) },
-            ])
-            notify.success({
-              message: 'Answer submitted successfully',
-              placement: 'bottomRight',
-            })
+      axios
+        .post(
+          'https://ralmeida.dev/capstone_server/answer/',
+          {
+            unit: unit.key,
+            question: router.query.pk,
+            content: values.content,
+            time_spent: startDate.current
+              ? Math.ceil(
+                  (new Date().getTime() - startDate.current.getTime()) / 1000
+                )
+              : null,
+          },
+          {
+            httpsAgent: httpsAgent,
+          }
+        )
+        .then((response) => {
+          router.replace('/questions/')
+          setIsModalOpen(false)
+          setUnit({
+            ...unit,
+            answers: [...unit.answers!, parseInt(router.query.pk as string)],
           })
-          .catch(function (error) {
-            console.log({ createAnswerAxiosError: error })
+
+          notify.success({
+            message: 'Answer submitted successfully',
+            placement: 'bottomRight',
           })
-      } else {
-        router.replace('/questions/')
-      }
+        })
+        .catch(function (error) {
+          console.log({ createAnswerAxiosError: error })
+        })
     } catch (error) {
       console.error(error)
     }
   }
 
-  if (unitKey === undefined) {
+  if (unit.key === undefined) {
     return <LoginRequired />
   }
 
@@ -113,8 +112,6 @@ export default function QuestionPage(props: {
           h3: ({ node, ...props }) => <Typography.Title {...props} level={3} />,
           h4: ({ node, ...props }) => <Typography.Title {...props} level={4} />,
           code: ({ children }) => {
-            console.log()
-
             return (
               <SyntaxHighlighter showLineNumbers language={'py'}>
                 {children as string}
@@ -139,9 +136,21 @@ export default function QuestionPage(props: {
         </Form.Item>
 
         <Form.Item>
-          <Button type='primary' onClick={showModal} disabled={!submitEnabled}>
-            Submit
-          </Button>
+          <ActionButtonWrapper>
+            {unit.type == 'Test' && (
+              <Button type='primary' danger>
+                <Link href='/questions/'>Leave</Link>
+              </Button>
+            )}
+
+            <Button
+              type='primary'
+              onClick={showModal}
+              disabled={!submitEnabled}
+            >
+              Submit
+            </Button>
+          </ActionButtonWrapper>
         </Form.Item>
 
         <Modal
@@ -173,12 +182,6 @@ export default function QuestionPage(props: {
           <Checkbox onChange={onCheckboxChange}>I confirm</Checkbox>
         </Modal>
       </Form>
-
-      {unitKey === 0 && (
-        <Button type='primary' style={{ backgroundColor: '#ff1616' }}>
-          <Link href='/questions/'>Leave</Link>
-        </Button>
-      )}
     </>
   )
 }
@@ -194,9 +197,6 @@ export async function getServerSideProps(context: MyContext) {
   const data = await axios
     .get(`https://ralmeida.dev/capstone_server/question/${pk}`, {
       httpsAgent: httpsAgent,
-      headers: {
-        Authorization: `Token ${TOKEN}`,
-      },
     })
     .then((response) => response.data)
     .catch((error) => {
