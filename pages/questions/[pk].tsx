@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GetServerSidePropsContext } from 'next'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -31,11 +31,14 @@ export default function QuestionPage(props: {
   const router = useRouter()
   const [form] = Form.useForm()
   const startDate = useRef<Date>()
-  props.question.type == 'Test' ? (startDate.current = new Date()) : undefined
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isOKEnabled, setIsOKEnabled] = useState(false)
   const [submitEnabled, setSubmitEnabled] = useState(false)
+
+  useEffect(() => {
+    props.question.type == 'Test' ? (startDate.current = new Date()) : undefined
+  }, [props])
 
   const showModal = () => {
     setIsModalOpen(true)
@@ -52,6 +55,16 @@ export default function QuestionPage(props: {
   async function onFinish() {
     try {
       const values = await form.validateFields()
+
+      console.log({ date: new Date(), startDate: startDate.current })
+
+      console.log(
+        startDate.current
+          ? Math.ceil(
+              (new Date().getTime() - startDate.current.getTime()) / 1000
+            )
+          : null
+      )
 
       axios
         .post(
