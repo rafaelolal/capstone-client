@@ -6,7 +6,10 @@ const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 
-const getDataSource = (data) => {
+type DataType = {key: number, answers: number, classroom: string}
+type ModDataType = {key: number, unitKey: number, answerCount: number, classroom: string}
+
+const getDataSource = (data: DataType[]) => {
   const dataSource = []
 
   var i = 0
@@ -42,7 +45,7 @@ const columns = [
     title: 'Answer Count',
     dataIndex: 'answerCount',
     key: 'answerCount',
-    render: (_: any, record) => (
+    render: (_: any, record: ModDataType) => (
       <p
         style={{
           color:
@@ -58,7 +61,7 @@ const columns = [
   },
 ]
 
-export default function DashboardPage(props) {
+export default function DashboardPage(props: {data: DataType[]}) {
   return (
     <>
       <Table dataSource={getDataSource(props.data)} columns={columns} />
