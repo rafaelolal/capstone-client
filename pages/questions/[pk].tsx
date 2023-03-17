@@ -122,6 +122,14 @@ export default function QuestionPage(props: {
               {...props}
             />
           ),
+          li: ({ node, ...props }) => (
+            <li
+              style={{
+                fontFamily: 'Roboto Mono, monospace',
+              }}
+              {...props}
+            />
+          ),
           h3: ({ node, ...props }) => <Typography.Title {...props} level={3} />,
           h4: ({ node, ...props }) => <Typography.Title {...props} level={4} />,
           code: ({ children }) => {
@@ -135,6 +143,7 @@ export default function QuestionPage(props: {
       >
         {props.question.description}
       </ReactMarkdown>
+
       <Form form={form}>
         <Form.Item
           name='content'

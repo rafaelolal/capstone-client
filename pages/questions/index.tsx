@@ -9,6 +9,7 @@ import PeerReviewModal from '@/components/peer-review-modal'
 import ContinueModal from '@/components/continue-modal'
 import UnitProfile from '@/components/unit-profile'
 import SignedModal from '@/components/signed-modal'
+import Link from 'next/link'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -45,41 +46,58 @@ const isQuestionAccessible = (
 const getColumns = (
   onStart: (record: Question) => void,
   unitType: string,
-  unitAnswers: number[]
-): ColumnsType<Question> => {
-  return [
-    {
-      title: 'TITLE',
-      dataIndex: 'title',
-      key: 'title',
-    },
-    {
-      title: 'OPENS ON',
-      dataIndex: 'opens_on',
-      key: 'opens_on',
-    },
-    {
-      title: 'DUE ON',
-      dataIndex: 'due_on',
-      key: 'due_on',
-    },
-    {
-      // title: 'START',
-      dataIndex: 'start',
-      key: 'start',
-      render: (_: any, record: Question) => (
+  unitAnswers: number[],
+  feedbacks: number[]
+): ColumnsType<Question> => [
+  {
+    title: 'TITLE',
+    dataIndex: 'title',
+    key: 'title',
+  },
+  {
+    title: 'OPENS ON',
+    dataIndex: 'opens_on',
+    key: 'opens_on',
+  },
+  {
+    title: 'DUE ON',
+    dataIndex: 'due_on',
+    key: 'due_on',
+  },
+  {
+    // title: 'ACTIONS',
+    dataIndex: 'actions',
+    key: 'actions',
+    render: (_: any, record: Question) => (
+      <Space>
         <Button
           disabled={!isQuestionAccessible(unitType, unitAnswers, record)}
           onClick={() => onStart(record)}
         >
           Start
         </Button>
-      ),
-    },
-  ]
-}
 
-export default function QuestionsPage(props: { questions: Question[] }) {
+        <Button
+          disabled={
+            unitType == 'Test'
+              ? !feedbacks.includes(record.pk)
+              : !(
+                  unitAnswers.includes(record.pk) &&
+                  feedbacks.includes(record.pk)
+                )
+          }
+        >
+          <Link href={`/feedback/${record.pk}/`}>Feedback</Link>
+        </Button>
+      </Space>
+    ),
+  },
+]
+
+export default function QuestionsPage(props: {
+  questions: Question[]
+  feedbacks: number[]
+}) {
   const { unit } = useAppContext()
 
   const [isSignedModalOpen, setIsSignedModalOpen] = useState(false)
@@ -147,7 +165,12 @@ export default function QuestionsPage(props: { questions: Question[] }) {
           <Table
             pagination={false}
             dataSource={dataSource}
-            columns={getColumns(showContinueModal, unit.type!, unit.answers!)}
+            columns={getColumns(
+              showContinueModal,
+              unit.type!,
+              unit.answers!,
+              props.feedbacks
+            )}
           />
         </Card>
       </Space>
@@ -166,5 +189,18 @@ export async function getServerSideProps() {
       console.log({ error })
     })
 
-  return { props: { questions: data } }
+  const feedbackData = await axios
+    .get('https://ralmeida.dev/capstone_server/feedback-list/', {
+      httpsAgent: httpsAgent,
+    })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.log({ error })
+    })
+
+  const formattedFeedbackData = feedbackData.map(
+    (o: { question: number }) => o.question
+  )
+
+  return { props: { questions: data, feedbacks: formattedFeedbackData } }
 }
