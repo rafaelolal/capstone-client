@@ -33,7 +33,7 @@ const getDataSource = (data: DataType[]) => {
   }
 
   dataSource.sort(
-    (a, b) => a.missing - b.missing || a.classroom.localeCompare(b.classroom)
+    (a, b) => b.missing - a.missing || a.classroom.localeCompare(b.classroom)
   )
 
   return dataSource
