@@ -6,8 +6,13 @@ const httpsAgent = new Agent({
   rejectUnauthorized: false,
 })
 
-type DataType = {key: number, answers: number, classroom: string}
-type ModDataType = {key: number, unitKey: number, answerCount: number, classroom: string}
+type DataType = { key: number; missing: number; classroom: string }
+type ModDataType = {
+  key: number
+  unitKey: number
+  missing: number
+  classroom: string
+}
 
 const getDataSource = (data: DataType[]) => {
   const dataSource = []
@@ -22,10 +27,14 @@ const getDataSource = (data: DataType[]) => {
       key: i,
       classroom: datum.classroom,
       unitKey: datum.key,
-      answerCount: datum.answers,
+      missing: datum.missing,
     })
     i++
   }
+
+  dataSource.sort(
+    (a, b) => a.missing - b.missing || a.classroom.localeCompare(b.classroom)
+  )
 
   return dataSource
 }
@@ -35,6 +44,14 @@ const columns = [
     title: 'Classroom',
     dataIndex: 'classroom',
     key: 'classroom',
+    filters: [
+      { text: 'A-3/4', value: 'A-3/4' },
+      { text: 'A-7/8', value: 'A-7/8' },
+      { text: 'B-3/4', value: 'B-3/4' },
+      { text: 'B-7/8', value: 'B-7/8' },
+    ],
+    onFilter: (value: string, record: DataType) =>
+      record.classroom.indexOf(value) == 0,
   },
   {
     title: 'Key',
@@ -42,36 +59,37 @@ const columns = [
     key: 'unitKey',
   },
   {
-    title: 'Answer Count',
-    dataIndex: 'answerCount',
-    key: 'answerCount',
-    render: (_: any, record: ModDataType) => (
-      <p
-        style={{
-          color:
-            (record.classroom.includes('A') && record.answerCount < 1) ||
-            (record.classroom.includes('B') && record.answerCount < 5)
-              ? 'red'
-              : '',
-        }}
-      >
-        {record.answerCount}
-      </p>
-    ),
+    title: 'Missing Questions',
+    dataIndex: 'missing',
+    key: 'missing',
+    render: (_: any, record: ModDataType) => ({
+      props: {
+        style: {
+          backgroundColor: record.missing > 0 ? '#ffb09c' : '',
+        },
+      },
+      children: <div>{record.missing}</div>,
+    }),
   },
 ]
 
-export default function DashboardPage(props: {data: DataType[]}) {
+export default function DashboardPage(props: { data: DataType[] }) {
   return (
     <>
-      <Table dataSource={getDataSource(props.data)} columns={columns} />
+      <Table
+        pagination={{
+          defaultPageSize: 100,
+        }}
+        dataSource={getDataSource(props.data)}
+        columns={columns}
+      />
     </>
   )
 }
 
 export async function getServerSideProps() {
   const data = await axios
-    .get('https://ralmeida.dev/capstone_server/unit-answers/', {
+    .get('https://ralmeida.dev/capstone_server/unit-missings/', {
       httpsAgent: httpsAgent,
     })
     .then((response) => response.data)
