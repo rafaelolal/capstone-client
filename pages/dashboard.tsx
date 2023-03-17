@@ -50,8 +50,8 @@ const columns = [
       { text: 'B-3/4', value: 'B-3/4' },
       { text: 'B-7/8', value: 'B-7/8' },
     ],
-    onFilter: (value: string, record: DataType) =>
-      record.classroom.indexOf(value) == 0,
+    onFilter: (value: string | number | boolean, record: DataType) =>
+      record.classroom.indexOf(value as string) == 0,
   },
   {
     title: 'Key',

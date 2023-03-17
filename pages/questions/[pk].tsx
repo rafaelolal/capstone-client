@@ -208,7 +208,7 @@ export async function getServerSideProps(context: MyContext) {
   const { pk } = context.params
 
   const data = await axios
-    .get(`https://ralmeida.dev/capstone_server/question/${pk}`, {
+    .get(`https://ralmeida.dev/capstone_server/question/${pk}/`, {
       httpsAgent: httpsAgent,
     })
     .then((response) => response.data)
