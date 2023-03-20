@@ -24,9 +24,10 @@ export default function ContinueModal(props: {
           Cancel
         </Button>,
 
-        <Link href={`/questions/${props.selectedQuestion}/`} passHref>
+        <Link 
+          key='submit'
+          href={`/questions/${props.selectedQuestion}/`} passHref>
           <Button
-            key='submit'
             type='primary'
             loading={isOKButtonLoading}
             onClick={() => setIsOKButtonLoading(true)}
