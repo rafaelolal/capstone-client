@@ -1,6 +1,7 @@
 import { Table } from 'antd'
 import axios from 'axios'
 import { Agent } from 'https'
+import Head from 'next/head'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -76,6 +77,14 @@ const columns = [
 export default function DashboardPage(props: { data: DataType[] }) {
   return (
     <>
+      <Head>
+        <title>Dashboard</title>
+        {/* TODO: Change description */}
+        <meta name='description' content='' />
+        {/* TODO: Change icon */}
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
+
       <Table
         pagination={{
           defaultPageSize: 100,

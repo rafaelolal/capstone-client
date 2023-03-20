@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import axios from 'axios'
 import { Agent } from 'https'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Input, Button, Form } from 'antd'
 import { NumberOutlined } from '@ant-design/icons'
 import { useAppContext } from '@/context/state'
@@ -23,6 +23,7 @@ export default function IndexPage() {
   const { unit, setUnit, notify } = useAppContext()
 
   const router = useRouter()
+  const [isSubmitButtonLoading, setIsSubmitButtonLoading] = useState(false)
 
   useEffect(() => {
     if (unit.key !== undefined) {
@@ -80,7 +81,12 @@ export default function IndexPage() {
             </Form.Item>
 
             <Form.Item>
-              <Button type='primary' htmlType='submit'>
+              <Button
+                type='primary'
+                htmlType='submit'
+                loading={isSubmitButtonLoading}
+                onClick={() => setIsSubmitButtonLoading(true)}
+              >
                 Submit
               </Button>
             </Form.Item>

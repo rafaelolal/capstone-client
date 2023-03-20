@@ -1,11 +1,14 @@
 import { Button, Modal } from 'antd'
 import Link from 'next/link'
+import { useState } from 'react'
 
 export default function ContinueModal(props: {
   selectedQuestion: number
   isModalOpen: boolean
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
+  const [isOKButtonLoading, setIsOKButtonLoading] = useState(false)
+
   return (
     <Modal
       centered
@@ -20,9 +23,17 @@ export default function ContinueModal(props: {
         >
           Cancel
         </Button>,
-        <Button key='submit' type='primary'>
-          <Link href={`/questions/${props.selectedQuestion}/`}>OK</Link>
-        </Button>,
+
+        <Link href={`/questions/${props.selectedQuestion}/`} passHref>
+          <Button
+            key='submit'
+            type='primary'
+            loading={isOKButtonLoading}
+            onClick={() => setIsOKButtonLoading(true)}
+          >
+            OK
+          </Button>
+        </Link>,
       ]}
     >
       <p>

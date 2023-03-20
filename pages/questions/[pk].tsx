@@ -11,7 +11,8 @@ import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
 import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
-import LoginRequired from '@/components/login-required'
+import LoginRequired from '@/components/sign-in-required'
+import Head from 'next/head'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -35,6 +36,8 @@ export default function QuestionPage(props: {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isOKEnabled, setIsOKEnabled] = useState(false)
   const [submitEnabled, setSubmitEnabled] = useState(false)
+  const [isLeaveButtonLoading, setIsLeaveButtonLoading] = useState(false)
+  const [isSubmitButtonLoading, setIsSubmitButtonLoading] = useState(false)
 
   useEffect(() => {
     props.question.type == 'Test' ? (startDate.current = new Date()) : undefined
@@ -55,16 +58,6 @@ export default function QuestionPage(props: {
   async function onFinish() {
     try {
       const values = await form.validateFields()
-
-      console.log({ date: new Date(), startDate: startDate.current })
-
-      console.log(
-        startDate.current
-          ? Math.ceil(
-              (new Date().getTime() - startDate.current.getTime()) / 1000
-            )
-          : null
-      )
 
       axios
         .post(
@@ -97,7 +90,7 @@ export default function QuestionPage(props: {
           })
         })
         .catch(function (error) {
-          console.log({ createAnswerAxiosError: error })
+          console.error({ createAnswerAxiosError: error })
         })
     } catch (error) {
       console.error(error)
@@ -110,7 +103,16 @@ export default function QuestionPage(props: {
 
   return (
     <>
+      <Head>
+        <title>{props.question.title}</title>
+        {/* TODO: Change description */}
+        <meta name='description' content='' />
+        {/* TODO: Change icon */}
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
+
       <Typography.Title>{props.question.title}</Typography.Title>
+
       <ReactMarkdown
         className='markdown'
         components={{
@@ -160,9 +162,16 @@ export default function QuestionPage(props: {
         <Form.Item>
           <ActionButtonWrapper>
             {unit.type == 'Test' && (
-              <Button type='primary' danger>
-                <Link href='/questions/'>Leave</Link>
-              </Button>
+              <Link href='/questions/' passHref>
+                <Button
+                  type='primary'
+                  danger
+                  loading={isLeaveButtonLoading}
+                  onClick={() => setIsLeaveButtonLoading(true)}
+                >
+                  Leave
+                </Button>
+              </Link>
             )}
 
             <Button
@@ -184,11 +193,16 @@ export default function QuestionPage(props: {
             <Button key='back' onClick={handleCancel}>
               Cancel
             </Button>,
+
             <Button
               key='submit'
               type='primary'
-              onClick={onFinish}
               disabled={!isOKEnabled}
+              loading={isSubmitButtonLoading}
+              onClick={() => {
+                setIsSubmitButtonLoading(true)
+                onFinish()
+              }}
             >
               Submit
             </Button>,

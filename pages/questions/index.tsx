@@ -4,12 +4,13 @@ import axios from 'axios'
 import { Card, Table, Button, Space } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { useAppContext } from '@/context/state'
-import LoginRequired from '@/components/login-required'
+import LoginRequired from '@/components/sign-in-required'
 import PeerReviewModal from '@/components/peer-review-modal'
 import ContinueModal from '@/components/continue-modal'
 import UnitProfile from '@/components/unit-profile'
 import SignedModal from '@/components/signed-modal'
 import Link from 'next/link'
+import Head from 'next/head'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -47,7 +48,9 @@ const getColumns = (
   onStart: (record: Question) => void,
   unitType: string,
   unitAnswers: number[],
-  feedbacks: number[]
+  feedbacks: number[],
+  isFeedbackButtonLoading: boolean,
+  setIsFeedbackButtonLoading: React.Dispatch<React.SetStateAction<boolean>>
 ): ColumnsType<Question> => [
   {
     title: 'TITLE',
@@ -77,18 +80,22 @@ const getColumns = (
           Start
         </Button>
 
-        <Button
-          disabled={
-            unitType == 'Test'
-              ? !feedbacks.includes(record.pk)
-              : !(
-                  unitAnswers.includes(record.pk) &&
-                  feedbacks.includes(record.pk)
-                )
-          }
-        >
-          <Link href={`/feedback/${record.pk}/`}>Feedback</Link>
-        </Button>
+        <Link href={`/feedback/${record.pk}/`} passHref>
+          <Button
+            disabled={
+              unitType == 'Test'
+                ? !feedbacks.includes(record.pk)
+                : !(
+                    unitAnswers.includes(record.pk) &&
+                    feedbacks.includes(record.pk)
+                  )
+            }
+            loading={isFeedbackButtonLoading}
+            onClick={() => setIsFeedbackButtonLoading(true)}
+          >
+            Feedback
+          </Button>
+        </Link>
       </Space>
     ),
   },
@@ -104,6 +111,7 @@ export default function QuestionsPage(props: {
   const [isContinueModalOpen, setIsContinueModalOpen] = useState(false)
   const [isPeerReviewModalOpen, setIsPeerReviewModalOpen] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<number>()
+  const [isFeedbackButtonLoading, setIsFeedbackButtonLoading] = useState(false)
 
   useEffect(() => {
     if (unit.signed === null) {
@@ -133,6 +141,14 @@ export default function QuestionsPage(props: {
 
   return (
     <>
+      <Head>
+        <title>Questions</title>
+        {/* TODO: Change description */}
+        <meta name='description' content='' />
+        {/* TODO: Change icon */}
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
+
       <SignedModal
         isModalOpen={isSignedModalOpen}
         setIsModalOpen={setIsSignedModalOpen}
@@ -169,7 +185,9 @@ export default function QuestionsPage(props: {
               showContinueModal,
               unit.type!,
               unit.answers!,
-              props.feedbacks
+              props.feedbacks,
+              isFeedbackButtonLoading,
+              setIsFeedbackButtonLoading
             )}
           />
         </Card>
@@ -186,7 +204,7 @@ export async function getServerSideProps() {
     })
     .then((response) => response.data)
     .catch((error) => {
-      console.log({ error })
+      console.error({ error })
     })
 
   const feedbackData = await axios
@@ -195,7 +213,7 @@ export async function getServerSideProps() {
     })
     .then((response) => response.data)
     .catch((error) => {
-      console.log({ error })
+      console.error({ error })
     })
 
   const formattedFeedbackData = feedbackData.map(

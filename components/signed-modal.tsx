@@ -2,6 +2,7 @@ import { Agent } from 'https'
 import axios from 'axios'
 import { useAppContext } from '@/context/state'
 import { Button, Form, Modal, Radio, Space } from 'antd'
+import { useState } from 'react'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -13,9 +14,10 @@ export default function SignedModal(props: {
 }) {
   const { unit, setUnit, notify } = useAppContext()
 
+  const [isSignedButtonLoading, setIsSignedButtonLoading] = useState(false)
   const [form] = Form.useForm()
 
-  async function onPeerReviewSubmit() {
+  async function onSignedSubmit() {
     try {
       const values = await form.validateFields()
 
@@ -55,7 +57,15 @@ export default function SignedModal(props: {
         props.setIsModalOpen(false)
       }}
       footer={[
-        <Button key='submit' type='primary' onClick={onPeerReviewSubmit}>
+        <Button
+          key='submit'
+          type='primary'
+          loading={isSignedButtonLoading}
+          onClick={() => {
+            setIsSignedButtonLoading(true)
+            onSignedSubmit()
+          }}
+        >
           Submit
         </Button>,
       ]}
@@ -64,7 +74,11 @@ export default function SignedModal(props: {
       <p>
         If you are unsure, use your school email to sign the informed consent
         form{' '}
-        <a target='_blank' rel="noreferrer" href='https://forms.gle/55HnH7p4UciAVqsg7'>
+        <a
+          target='_blank'
+          rel='noreferrer'
+          href='https://forms.gle/55HnH7p4UciAVqsg7'
+        >
           here
         </a>
         . You will receive a receipt of your response.
