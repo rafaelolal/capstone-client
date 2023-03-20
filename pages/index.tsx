@@ -51,7 +51,7 @@ export default function IndexPage() {
       .catch((error) => {
         console.log({ signInAxiosError: error })
         notify.warning({ message: 'Incorrect key', placement: 'bottomRight' })
-        setIsSubmitButtonLoading(true)
+        setIsSubmitButtonLoading(false)
       })
   }
 
