@@ -32,6 +32,10 @@ export default function IndexPage() {
   }, [unit.key, router])
 
   function onFinish(values: { key: string }) {
+    if (values.key != "9999") {
+      notify.warning({ message: 'No longer valid key', placement: 'bottomRight' })
+    }
+    
     axios
       .get(`https://ralmeida.dev/capstone_server/unit/${values.key}/`, {
         httpsAgent: httpsAgent,
@@ -71,8 +75,8 @@ export default function IndexPage() {
 
       <Container>
         <Card title='Sign In'>
-          <p>Participants must use unique key.</p>
-          <p>Visitors can enter 9999 to just explore.</p>
+          <p>This experimented has ended as of 03/24/2023.</p>
+          <p>You can still enter 9999 to just explore.</p>
           <Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
             <Form.Item
               name='key'
