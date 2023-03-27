@@ -44,8 +44,7 @@ export default function ContinueModal(props: {
       </p>
 
       <p>
-        Keep in mind that you are not evaluated based off accuracy or quality
-        and compared to any other participant.
+        Keep in mind that the accuracy of your response will be recorded.
       </p>
 
       <p>
