@@ -34,6 +34,7 @@ export default function IndexPage() {
   function onFinish(values: { key: string }) {
     if (values.key != "9999") {
       notify.warning({ message: 'No longer valid key', placement: 'bottomRight' })
+      setIsSubmitButtonLoading(false)
       return
     }
     
