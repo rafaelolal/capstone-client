@@ -60,9 +60,8 @@ export default function PeerReviewModal(props: {
         props.setIsModalOpen(false)
       }}
       footer={[
-        <Space>
+        <Space key="footer">
           <Button
-            key='back'
             onClick={() => {
               props.setIsModalOpen(false)
             }}
@@ -71,7 +70,6 @@ export default function PeerReviewModal(props: {
           </Button>
 
           <Button
-            key='submit'
             type='primary'
             loading={isPeerReviewSubmitButtonLoading}
             onClick={() => {

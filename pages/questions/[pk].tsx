@@ -190,13 +190,12 @@ export default function QuestionPage(props: {
           onCancel={handleCancel}
           closable={false}
           footer={[
-            <Space>
-              <Button key='back' onClick={handleCancel}>
+            <Space key='footer'>
+              <Button onClick={handleCancel}>
                 Cancel
               </Button>
 
               <Button
-                key='submit'
                 type='primary'
                 disabled={!isOKEnabled}
                 loading={isSubmitButtonLoading}

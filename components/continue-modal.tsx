@@ -15,9 +15,8 @@ export default function ContinueModal(props: {
       open={props.isModalOpen}
       closable={false}
       footer={[
-        <Space>
+        <Space key="footer">
           <Button
-            key='back'
             onClick={() => {
               props.setIsModalOpen(false)
             }}
@@ -26,7 +25,6 @@ export default function ContinueModal(props: {
           </Button>
           
           <Link 
-            key='submit'
             href={`/questions/${props.selectedQuestion}/`} passHref>
             <Button
               type='primary'
