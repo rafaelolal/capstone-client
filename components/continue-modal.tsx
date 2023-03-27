@@ -1,4 +1,4 @@
-import { Button, Modal } from 'antd'
+import { Button, Modal, Space } from 'antd'
 import Link from 'next/link'
 import { useState } from 'react'
 
@@ -15,26 +15,28 @@ export default function ContinueModal(props: {
       open={props.isModalOpen}
       closable={false}
       footer={[
-        <Button
-          key='back'
-          onClick={() => {
-            props.setIsModalOpen(false)
-          }}
-        >
-          Cancel
-        </Button>,
-
-        <Link 
-          key='submit'
-          href={`/questions/${props.selectedQuestion}/`} passHref>
+        <Space>
           <Button
-            type='primary'
-            loading={isOKButtonLoading}
-            onClick={() => setIsOKButtonLoading(true)}
+            key='back'
+            onClick={() => {
+              props.setIsModalOpen(false)
+            }}
           >
-            OK
+            Cancel
           </Button>
-        </Link>,
+          
+          <Link 
+            key='submit'
+            href={`/questions/${props.selectedQuestion}/`} passHref>
+            <Button
+              type='primary'
+              loading={isOKButtonLoading}
+              onClick={() => setIsOKButtonLoading(true)}
+            >
+              OK
+            </Button>
+          </Link>
+        </Space>
       ]}
     >
       <p>

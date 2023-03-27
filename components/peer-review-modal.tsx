@@ -1,9 +1,8 @@
 import { Agent } from 'https'
 import axios from 'axios'
 import { useAppContext } from '@/context/state'
-import { Button, DatePicker, Form, Input, Modal } from 'antd'
+import { Button, DatePicker, Form, Input, Modal, Space } from 'antd'
 import { useState } from 'react'
-import { isPresetColor } from 'antd/es/_util/colors'
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -37,7 +36,7 @@ export default function PeerReviewModal(props: {
             httpsAgent: httpsAgent,
           }
         )
-        .then((response) => {
+        .then(() => {
           props.setIsModalOpen(false)
           notify.success({
             message: 'Peer review submitted successfully',
@@ -61,26 +60,28 @@ export default function PeerReviewModal(props: {
         props.setIsModalOpen(false)
       }}
       footer={[
-        <Button
-          key='back'
-          onClick={() => {
-            props.setIsModalOpen(false)
-          }}
-        >
-          Cancel
-        </Button>,
+        <Space>
+          <Button
+            key='back'
+            onClick={() => {
+              props.setIsModalOpen(false)
+            }}
+          >
+            Cancel
+          </Button>
 
-        <Button
-          key='submit'
-          type='primary'
-          loading={isPeerReviewSubmitButtonLoading}
-          onClick={() => {
-            setIsPeerReviewSubmitButtonLoading(true)
-            onPeerReviewSubmit()
-          }}
-        >
-          Submit
-        </Button>,
+          <Button
+            key='submit'
+            type='primary'
+            loading={isPeerReviewSubmitButtonLoading}
+            onClick={() => {
+              setIsPeerReviewSubmitButtonLoading(true)
+              onPeerReviewSubmit()
+            }}
+          >
+            Submit
+          </Button>
+        </Space>
       ]}
     >
       <p>

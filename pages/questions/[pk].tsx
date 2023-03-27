@@ -7,7 +7,7 @@ import { Agent } from 'https'
 import styled from 'styled-components'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { Typography, Button, Form, Input, Modal, Checkbox } from 'antd'
+import { Typography, Button, Form, Input, Modal, Checkbox, Space } from 'antd'
 import { ParsedUrlQuery } from 'querystring'
 import { useAppContext } from '@/context/state'
 import { CheckboxChangeEvent } from 'antd/es/checkbox'
@@ -190,22 +190,24 @@ export default function QuestionPage(props: {
           onCancel={handleCancel}
           closable={false}
           footer={[
-            <Button key='back' onClick={handleCancel}>
-              Cancel
-            </Button>,
+            <Space>
+              <Button key='back' onClick={handleCancel}>
+                Cancel
+              </Button>
 
-            <Button
-              key='submit'
-              type='primary'
-              disabled={!isOKEnabled}
-              loading={isSubmitButtonLoading}
-              onClick={() => {
-                setIsSubmitButtonLoading(true)
-                onFinish()
-              }}
-            >
-              Submit
-            </Button>,
+              <Button
+                key='submit'
+                type='primary'
+                disabled={!isOKEnabled}
+                loading={isSubmitButtonLoading}
+                onClick={() => {
+                  setIsSubmitButtonLoading(true)
+                  onFinish()
+                }}
+              >
+                Submit
+              </Button>
+            </Space>
           ]}
         >
           <p>Thank you for taking the time to complete this question.</p>
