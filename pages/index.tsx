@@ -32,12 +32,15 @@ export default function IndexPage() {
   }, [unit.key, router])
 
   function onFinish(values: { key: string }) {
-    if (values.key != "9999") {
-      notify.warning({ message: 'No longer valid key', placement: 'bottomRight' })
+    if (values.key != '9999') {
+      notify.warning({
+        message: 'No longer valid key',
+        placement: 'bottomRight',
+      })
       setIsSubmitButtonLoading(false)
       return
     }
-    
+
     axios
       .get(`https://ralmeida.dev/capstone_server/unit/${values.key}/`, {
         httpsAgent: httpsAgent,
